@@ -1,3 +1,4 @@
+import axios from "axios";
 import express from "express";
 import redis from "redis";
 import util from "util";
@@ -19,6 +20,22 @@ app.post("/", async (req, res) => {
 app.get("/", async (req, res) => {
   const data = await client.get(req.body.key);
   res.json(data);
+});
+
+app.get("/posts/:id", async (req, res) => {
+  const { id } = req.params;
+  const cachedPost = await client.get(`post-${id}`)
+  if(cachedPost){
+   return res.json(JSON.parse(cachedPost))
+  }else{
+    const { data } = await axios.get(
+        `https://jsonplaceholder.typicode.com/posts/${id}`
+      );
+ await client.set(`post-${id}`,JSON.stringify(data))
+   res.json(data)
+  }
+
+
 });
 
 app.listen(3000, () => {
