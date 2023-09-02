@@ -24,19 +24,18 @@ app.get("/", async (req, res) => {
 
 app.get("/posts/:id", async (req, res) => {
   const { id } = req.params;
-  const cachedPost = await client.get(`post-${id}`)
-  if(cachedPost){
-   return res.json(JSON.parse(cachedPost))
-  }else{
-    const { data } = await axios.get(
-        `https://jsonplaceholder.typicode.com/posts/${id}`
-      );
- await client.set(`post-${id}`,JSON.stringify(data))
-   res.json(data)
+  const cachedPost = await client.get(`post-${id}`);
+  if (cachedPost) {
+    return res.json(JSON.parse(cachedPost));
   }
-
-
+  const { data } = await axios.get(
+    `https://jsonplaceholder.typicode.com/posts/${id}`
+  );
+  await client.set(`post-${id}`, JSON.stringify(data),"EX",10);
+  res.json(data);
 });
+
+
 
 app.listen(3000, () => {
   console.log("listen to the port xyxyxyx");
