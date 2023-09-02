@@ -4,6 +4,7 @@ import util from "util";
 const redis_url = "redis://localhost:6379";
 const client = redis.createClient(redis_url);
 client.set = util.promisify(client.set);
+client.get = util.promisify(client.get);
 const app = express();
 app.use(express.json());
 
@@ -13,6 +14,11 @@ app.post("/", async (req, res) => {
   const response = await client.set(key, value);
 
   res.json(response);
+});
+
+app.get("/", async (req, res) => {
+  const data = await client.get(req.body.key);
+  res.json(data);
 });
 
 app.listen(3000, () => {
